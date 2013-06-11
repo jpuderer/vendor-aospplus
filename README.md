@@ -79,3 +79,47 @@ sudo chown -R ${USER}. system.factory  1
 rmdir system.mnt
 $ rm -r system.full.img
 ```
+
+
+*NOTE: We don't need to preserve permission or ownership, since the AOSP build system has its own rules for setting the permissions and ownership of the files we add to the build.*
+
+### 4. Deodex the APK and framework files
+
+An odexed file is basically an APK that has been preoptimized for fast loading.  The .dex file that normally exists inside the APK or JAR file (which are really just a zip files) is removed from the APK, optimized, and is placed next to the .apk as an .odex file.
+
+The Android build system can be configured to preoptimize the files on APK files in /system/app, and this is exactly what's happened to the factory images.
+
+The documentation for dexopt details the optimizations:
+https://github.com/android/platform_dalvik/blob/master/docs/dexopt.html
+
+Unfortunately for us (and themers in general), the optimized .odex file has dependencies on the classes in bootstrap class path, which for Android is everything under /system/framework.  If we change the framework files, the .odex files will not work.
+
+So we need to "deodex" the the .odex files, and package them back into the APK and JAR files.
+
+To do that, we need to use some tools to recompile the odex files back into odex files.
+
+The original deodex tools can be found [here](https://code.google.com/p/smali), but I've included copies in this project.
+
+
+```bash
+cd $ANDROID_BUILD_TOP/vendor/aospplus/
+cp -r $MY_SCRATCH_DIR/system.factory mako/proprietary/system
+utils/deodex.py mako/proprietary/system
+```
+
+Feel free to do some cleanup of the system directory if you wish, since not all files are needed.
+
+```bash
+cd mako/proprietary/system
+rm -Rf bin build.prop fonts lost+found xbin
+```
+
+### 5. Build your target at you would normally.
+
+Assuming you have already sourced build/envsetup.sh and selected you target using the 'lunch' command:
+
+```bash
+cd $ANDROID_BUILD_TOP
+make clobber & make -j8
+```
+
