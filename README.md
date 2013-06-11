@@ -123,3 +123,10 @@ cd $ANDROID_BUILD_TOP
 make clobber & make -j8
 ```
 
+
+---
+
+### More information...
+
+Additional information on adapting these templates for new devices is available in my slides:
+http://www.slideshare.net/jpuderer/aosp-22819480
