@@ -75,9 +75,9 @@ mkdir system.factory
 sudo mount -n -o loop system.full.img system.mnt
 sudo cp -r system.mnt/* system.factory
 sudo umount -n system.mnt
-sudo chown -R ${USER}. system.factory  1
+sudo chown -R ${USER}. system.factory
 rmdir system.mnt
-$ rm -r system.full.img
+rm -r system.full.img
 ```
 
 
